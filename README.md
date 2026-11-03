@@ -1,4 +1,4 @@
-# ひと日（hitohi）— Android
+# calendar-widget— Android
 
 Android 8.0 以降向けのローカルアプリ。端末の Calendar Provider に同期された予定を読み取り、日別の縦長アジェンダとホーム画面ウィジェットに表示します。Google カレンダーへの直接ログインや独自サーバーはありません。Google 以外の表示中のカレンダーも対象です。
 
@@ -60,6 +60,6 @@ Chromium で予定6件、詳細ダイアログ、翌日移動、表示切り替�
 
 ## 正式版 APK
 
-[GitHub Releases](https://github.com/WassanBorn72/calendar-widget/releases) にて署名済み APK を配布します。初回バージョンは **v1.0.0**、アプリ ID は `io.github.wassanborn72.hitohi` です。Google Play 向けではなく直接インストール用です。公開状況は Releases ページで確認してください。
+[GitHub Releases](https://github.com/WassanBorn72/calendar-widget/releases) にて署名済み APK を配布します。初回バージョンは **v1.0.1**、アプリ ID は `io.github.wassanborn72.calendarwidget` です。Google Play 向けではなく直接インストール用です。公開状況は Releases ページで確認してください。
 
-署名鍵は公開しません。更新版のビルドと鍵の保管方法は [リリース手順](docs/RELEASING.md)、機能・インストール方法・制限は [リリースノート](docs/releases/v1.0.0.md) を参照してください。
+署名鍵は公開しません。更新版のビルドと鍵の保管方法は [リリース手順](docs/RELEASING.md)、機能・インストール方法・制限は [リリースノート](docs/releases/v1.0.1.md) を参照してください。

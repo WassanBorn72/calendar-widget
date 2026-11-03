@@ -5,9 +5,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Existing release tag (for example v1.0.0)'
+        description: 'Existing release tag (for example v1.0.1)'
         required: true
-        default: 'v1.0.0'
+        default: 'v1.0.1'
 permissions:
   contents: read
 concurrency:
@@ -15,34 +15,46 @@ concurrency:
   cancel-in-progress: false
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       RELEASE_TAG: ${{ inputs.version || github.ref_name }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ inputs.version || github.ref_name }}
-      - uses: actions/setup-java@v4
+      - id: java
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
-      - uses: android-actions/setup-android@v3
-      - run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
-      - uses: gradle/actions/setup-gradle@v4
+      - name: Prepare runner Android SDK
+        id: sdk
+        run: |
+          test -n "$ANDROID_HOME"
+          if [ ! -f "$ANDROID_HOME/platforms/android-35/android.jar" ] || [ ! -x "$ANDROID_HOME/build-tools/35.0.0/apksigner" ]; then
+            "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-35' 'build-tools;35.0.0'
+          fi
+      - uses: gradle/actions/setup-gradle@v5
         with:
           gradle-version: '8.11.1'
-      - run: sh scripts/test-timeline.sh
-      - run: ./gradlew :app:assembleDebug :app:lintRelease --no-daemon
-      - run: python3 scripts/verify-release.py "$RELEASE_TAG"
+      - id: unit
+        run: sh scripts/test-timeline.sh
+      - id: build
+        run: ./gradlew :app:assembleDebug :app:lintRelease --no-daemon --max-workers=4
+      - id: apk
+        run: python3 scripts/verify-release.py "$RELEASE_TAG"
+      - name: Report failed stage
+        if: failure()
+        run: echo "::error title=Release verification stages::Java=${{ steps.java.outcome }} SDK=${{ steps.sdk.outcome }} unit=${{ steps.unit.outcome }} build=${{ steps.build.outcome }} APK=${{ steps.apk.outcome }}"
   publish:
     needs: verify
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
     env:
       RELEASE_TAG: ${{ inputs.version || github.ref_name }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ inputs.version || github.ref_name }}
       - name: Create release with verified signed APK
@@ -51,8 +63,8 @@ jobs:
         run: |
           gh release create "$RELEASE_TAG" \
             "release-assets/$RELEASE_TAG/"*.apk \
-            "release-assets/$RELEASE_TAG/hitohi_SHA256SUMS" \
-            "release-assets/$RELEASE_TAG/hitohi_PUBLIC_CERTIFICATE_SHA256.txt" \
-            "release-assets/$RELEASE_TAG/hitohi_release.json" \
-            --verify-tag --title "ひと日 $RELEASE_TAG" \
+            "release-assets/$RELEASE_TAG/calendar-widget_SHA256SUMS" \
+            "release-assets/$RELEASE_TAG/calendar-widget_PUBLIC_CERTIFICATE_SHA256.txt" \
+            "release-assets/$RELEASE_TAG/calendar-widget_release.json" \
+            --verify-tag --title "calendar-widget $RELEASE_TAG" \
             --notes-file "docs/releases/$RELEASE_TAG.md"

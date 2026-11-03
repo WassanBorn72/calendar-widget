@@ -1,8 +1,8 @@
 #!/bin/sh
 set -eu
 cd "$(dirname "$0")/.."
-: "${HITOHI_KEYSTORE:?Set the private keystore path}"
-: "${HITOHI_PASSWORD_FILE:?Set the private password-file path}"
+: "${CALENDAR_WIDGET_KEYSTORE:?Set the private keystore path}"
+: "${CALENDAR_WIDGET_PASSWORD_FILE:?Set the private password-file path}"
 : "${ANDROID_HOME:?Set Android SDK path}"
 : "${GRADLE_BIN:=./gradlew}"
 sh scripts/test-timeline.sh

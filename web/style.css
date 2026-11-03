@@ -15,3 +15,5 @@
 .now-line::before{content:'';position:absolute;left:-3px;top:-4px;width:7px;height:7px;border-radius:50%;background:#ce5e50}
 .now-line span{position:absolute;right:calc(100% + 6px);top:-8px;font-size:9px;color:#b7473c;background:#fafbf7;padding:1px}
 .now-line[hidden]{display:none}.widget .event-list{max-height:430px}.empty-state{padding:10px;font-size:11px}.event-list{overscroll-behavior:contain}
+
+.brand{font-size:18px}
