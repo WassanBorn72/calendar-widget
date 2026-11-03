@@ -1,5 +1,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="@drawable/widget_background">
-    <TextView android:id="@+id/date" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/widget_title" android:textSize="22sp" android:textStyle="bold" android:textColor="#183B32" android:paddingBottom="12dp" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingBottom="8dp">
+        <TextView android:id="@+id/date" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/widget_title" android:textSize="20sp" android:textStyle="normal" android:textColor="#183B32" />
+        <TextClock android:id="@+id/clock" android:layout_width="wrap_content" android:layout_height="wrap_content" android:format12Hour="HH:mm" android:format24Hour="HH:mm" android:textSize="20sp" android:textColor="#233E36" />
+    </LinearLayout>
     <TextView android:id="@+id/all_day" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="12sp" android:textColor="#53655E" android:paddingBottom="8dp" />
     <ListView android:id="@+id/events" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:divider="@android:color/transparent" android:dividerHeight="0dp" />
     <TextView android:id="@+id/empty" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/widget_empty" android:textColor="#53655E" android:padding="12dp" />

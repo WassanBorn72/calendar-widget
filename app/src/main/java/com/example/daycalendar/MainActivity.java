@@ -29,7 +29,9 @@ public class MainActivity extends Activity {
         super.onCreate(state);
         if (state != null) date = LocalDate.parse(state.getString("date", date.toString()));
     }
-    @Override protected void onResume() { super.onResume(); render(); DayWidget.refreshAll(this); }
+    @Override protected void onResume() {
+        super.onResume(); MinuteUpdateService.startIfEnabled(this); render(); DayWidget.refreshAll(this);
+    }
     @Override protected void onSaveInstanceState(Bundle out) { out.putString("date", date.toString()); super.onSaveInstanceState(out); }
     private void render() {
         int request = ++generation;
@@ -44,6 +46,34 @@ public class MainActivity extends Activity {
         button(nav, "前日", () -> {date = date.minusDays(1); render();});
         button(nav, "今日", () -> {date = LocalDate.now(); render();});
         button(nav, "翌日", () -> {date = date.plusDays(1); render();}); body.addView(nav);
+        TextClock clock = new TextClock(this); clock.setFormat12Hour("HH:mm"); clock.setFormat24Hour("HH:mm");
+        clock.setTextSize(24); clock.setTextColor(0xff233e36); body.addView(clock);
+        Switch minuteUpdates = new Switch(this);
+        minuteUpdates.setText("時刻と赤線を毎分更新"); minuteUpdates.setTextSize(16);
+        minuteUpdates.setChecked(MinuteUpdateService.enabled(this));
+        minuteUpdates.setEnabled(CalendarEvents.permitted(this));
+        minuteUpdates.setPadding(0, dp(12), 0, dp(12)); body.addView(minuteUpdates);
+        body.addView(text("ON にすると常駐通知を表示します。画面消灯中は休止し、点灯時に最新時刻へ更新します。", 12, 0xff53655e));
+        minuteUpdates.setOnCheckedChangeListener((view, checked) -> {
+            if (!checked) { MinuteUpdateService.disable(this); return; }
+            if (android.os.Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 2); return;
+            }
+            if (!MinuteUpdateService.notificationsAllowed(this)) {
+                MinuteUpdateService.setEnabled(this, false);
+                Toast.makeText(this, "毎分更新の通知を設定で許可してください", Toast.LENGTH_LONG).show();
+                startActivity(new Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, getPackageName()));
+                return;
+            }
+            MinuteUpdateService.setEnabled(this, true);
+            if (!MinuteUpdateService.startIfEnabled(this)) {
+                MinuteUpdateService.setEnabled(this, false);
+                Toast.makeText(this, "毎分更新を開始できませんでした。アプリを開き直してください", Toast.LENGTH_LONG).show();
+                render();
+            }
+        });
+        if (!MinuteUpdateService.notificationsAllowed(this)) button(body, "通知設定を開く", () ->
+                startActivity(new Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, getPackageName())));
         body.addView(text("端末で同期・表示されているカレンダーの予定", 12, 0xff53655e));
         if (!CalendarEvents.permitted(this)) {
             body.addView(text("Google カレンダーを端末の設定で同期してから、読み取りを許可してください。予定は端末内で処理します。", 16, 0xff183b32));
@@ -66,7 +96,7 @@ public class MainActivity extends Activity {
                         LinearLayout card = new LinearLayout(this); card.setOrientation(LinearLayout.VERTICAL);
                         card.setPadding(dp(16), dp(10), dp(16), dp(10));
                         GradientDrawable bg = new GradientDrawable(); bg.setColor(Color.WHITE); bg.setCornerRadius(dp(16));
-                        bg.setStroke(dp(1), TimelineView.eventBorderColor(event.color())); card.setBackground(bg);
+                        bg.setStroke(Math.max(1, Math.round(.5f*getResources().getDisplayMetrics().density)), TimelineView.eventBorderColor(event.color())); card.setBackground(bg);
                         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, -2); lp.setMargins(0, dp(10), 0, 0); body.addView(card, lp);
                         card.addView(text(event.time(), 13, 0xff245e4c));
                         TextView title = text(event.title(), 20, 0xff183b32); title.setTypeface(null, Typeface.BOLD); card.addView(title);
@@ -103,7 +133,14 @@ public class MainActivity extends Activity {
         else Toast.makeText(this, "ホーム画面のウィジェット一覧から追加してください", Toast.LENGTH_LONG).show();
     }
     @Override public void onRequestPermissionsResult(int code, String[] permissions, int[] results) {
-        super.onRequestPermissionsResult(code, permissions, results); render(); DayWidget.refreshAll(this);
+        super.onRequestPermissionsResult(code, permissions, results);
+        if (code == 2) {
+            boolean granted = results.length > 0 && results[0] == android.content.pm.PackageManager.PERMISSION_GRANTED;
+            MinuteUpdateService.setEnabled(this, granted);
+            if (granted) MinuteUpdateService.startIfEnabled(this);
+            else Toast.makeText(this, "常駐通知を表示するには通知の許可が必要です", Toast.LENGTH_LONG).show();
+        }
+        render(); DayWidget.refreshAll(this);
     }
     @Override protected void onDestroy() { generation++; worker.shutdown(); super.onDestroy(); }
 }

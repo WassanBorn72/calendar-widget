@@ -59,11 +59,14 @@ public class DayWidget extends AppWidgetProvider {
         service.putExtra(WidgetRaster.WIDTH_DP, widthDp);
         service.setData(Uri.parse("daycalendar://widget/" + id + "/" + widthDp));
         v.setRemoteAdapter(R.id.events, service);
-        v.setTextViewText(R.id.all_day, "終日予定は一覧の先頭に表示 · 赤線は更新時刻");
+        String updated = java.time.LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"));
+        v.setTextViewText(R.id.all_day, "赤線 " + updated + " 時点 · " + (MinuteUpdateService.isRunning() ? "毎分更新中" : "アプリで毎分更新をON"));
         v.setEmptyView(R.id.events, R.id.empty);
         v.setTextViewText(R.id.empty, CalendarEvents.permitted(c) ? "今日の予定はありません" : "タップしてカレンダーの読み取りを許可");
         PendingIntent open = PendingIntent.getActivity(c, 0, new Intent(c, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         v.setOnClickPendingIntent(R.id.date, open);
+        v.setOnClickPendingIntent(R.id.clock, open);
+        v.setOnClickPendingIntent(R.id.all_day, open);
         v.setOnClickPendingIntent(R.id.empty, open);
         Intent refresh = new Intent(c, DayWidget.class).setAction("com.example.daycalendar.REFRESH");
         v.setOnClickPendingIntent(R.id.refresh, PendingIntent.getBroadcast(c, 1, refresh, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));

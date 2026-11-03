@@ -1,0 +1,27 @@
+{
+  "applicationId": "io.github.wassanborn72.calendarwidget",
+  "versionName": "1.0.3",
+  "versionCode": 4,
+  "minimumAndroidApi": 26,
+  "targetAndroidApi": 35,
+  "apkSha256": "ad4efb9a8dde78b6467916488f8aa0d23ba4d46a43f40d8ab26b0e7513892a7d",
+  "certificateSha256": "65f378d488d10264fb31b3b702c0b5f4387182b5fe20328055ad1a59cf25e696",
+  "validation": {
+    "releaseBuild": "passed",
+    "releaseLint": "0 errors; 2 warnings",
+    "androidUnitTests": {
+      "passed": 15,
+      "failed": 0,
+      "skipped": 0,
+      "coverage": [
+        "minute alignment, sleep/resume, clock changes, cancellation",
+        "foreground notification and stop action",
+        "native graphics and thin adjacent boundaries",
+        "RemoteViews TextClock on Android 26 and 35"
+      ]
+    },
+    "timelineTests": "passed",
+    "browserTests": "passed, including minute clock advancement",
+    "physicalDevice": "not tested"
+  }
+}

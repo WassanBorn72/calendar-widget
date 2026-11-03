@@ -1,5 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <application android:theme="@android:style/Theme.Material.Light.NoActionBar" android:label="calendar-widget" android:icon="@mipmap/ic_launcher" android:allowBackup="false" android:fullBackupContent="false" android:dataExtractionRules="@xml/data_extraction_rules" android:supportsRtl="true">
         <activity android:name=".MainActivity" android:exported="true">
             <intent-filter>
@@ -15,6 +19,15 @@
                 <action android:name="android.intent.action.TIME_SET" />
             </intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/day_widget" />
+        </receiver>
+        <service android:name=".MinuteUpdateService" android:exported="false" android:foregroundServiceType="specialUse">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="User-enabled home-screen calendar clock and current-time line updates every minute while the screen is on." />
+        </service>
+        <receiver android:name=".UpdateRestartReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
         </receiver>
         <service android:name=".EventWidgetService" android:permission="android.permission.BIND_REMOTEVIEWS" android:exported="false" />
     </application>

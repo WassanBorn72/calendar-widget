@@ -2,6 +2,7 @@ package com.example.daycalendar;
 
 import android.content.Context;
 import android.graphics.*;
+import android.text.*;
 import android.view.*;
 import java.time.*;
 import java.util.*;
@@ -12,6 +13,7 @@ import java.util.function.Consumer;
 @android.annotation.SuppressLint("ViewConstructor")
 final class TimelineView extends View {
     static final int HOUR = 72;
+    static final int AXIS = 50;
     private final LocalDate day;
     private final List<DayTimeline.Block> blocks;
     private final Consumer<CalendarEvent> onEvent;
@@ -50,7 +52,7 @@ final class TimelineView extends View {
         return bitmap;
     }
     static int eventBorderColor(int color) {
-        return mix(color == 0 ? 0xff36674e : color, 0xff233e36, .6f);
+        return mix(mix(color == 0 ? 0xff36674e : color, 0xff233e36, .55f), Color.WHITE, .62f);
     }
     private static int mix(int a, int b, float ratio) {
         return Color.rgb(Math.round(Color.red(a)*(1-ratio)+Color.red(b)*ratio),
@@ -59,46 +61,64 @@ final class TimelineView extends View {
     }
     private static void drawTimeline(Canvas c, float width, LocalDate day, List<DayTimeline.Block> blocks,
                                      float from, float to, ZonedDateTime updatedAt) {
-        Paint p = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.SUBPIXEL_TEXT_FLAG | Paint.DITHER_FLAG);
+        TextPaint p = new TextPaint(Paint.ANTI_ALIAS_FLAG | Paint.SUBPIXEL_TEXT_FLAG | Paint.DITHER_FLAG);
         p.setHinting(Paint.HINTING_ON);
         p.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
         for (int h=0;h<=24;h++) {
             float y=12+h*HOUR;
-            p.setColor(0xffbcc9bb);p.setStrokeWidth(1);c.drawLine(44,y,width,y,p);
+            p.setColor(0xffbcc9bb);p.setStrokeWidth(1);c.drawLine(AXIS,y,width,y,p);
             p.setColor(0xff53655e);p.setTextSize(11);c.drawText(String.format(Locale.ROOT,"%02d:00",h),0,y+4,p);
-            if(h<24){p.setColor(0xffdfe5da);c.drawLine(44,y+HOUR/2f,width,y+HOUR/2f,p);}
+            if(h<24){p.setColor(0xffdfe5da);c.drawLine(AXIS,y+HOUR/2f,width,y+HOUR/2f,p);}
         }
         for (var b : blocks) {
             float top = (float)(12+b.start*HOUR/60), bottom=(float)(12+b.end*HOUR/60);
             if(bottom < from || top > to) continue;
-            float laneWidth=(width-48)/b.columns,left=46+laneWidth*b.lane,right=left+laneWidth-3;
+            float laneWidth=(width-AXIS-4)/b.columns,left=AXIS+2+laneWidth*b.lane,right=left+laneWidth-3;
             int color=b.event.color()==0?0xff36674e:b.event.color();
             float visibleBottom = Math.max(top+1, bottom);
             RectF bounds = new RectF(left, top, right, visibleBottom);
-            p.setColor(mix(color, Color.WHITE, .89f));
+            p.setColor(mix(color, Color.WHITE, .94f));
             c.drawRoundRect(bounds, 4, 4, p);
-            c.save();c.clipRect(left, top, left+3, visibleBottom);
-            p.setColor(eventBorderColor(color));c.drawRoundRect(bounds, 4, 4, p);c.restore();
+            c.save();c.clipRect(left, top, left+2, visibleBottom);
+            p.setColor(mix(color, 0xff233e36, .15f));c.drawRoundRect(bounds, 4, 4, p);c.restore();
             // Stroke stays inside the exact time bounds: adjacent same-color events
             // retain distinct top/bottom edges without changing their duration.
-            float stroke = Math.min(1.25f, visibleBottom-top);
+            float stroke = Math.min(.5f, visibleBottom-top);
             RectF border = new RectF(bounds);border.inset(stroke/2, stroke/2);
             p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(stroke);
             p.setColor(eventBorderColor(color));c.drawRoundRect(border, 3.5f, 3.5f, p);
             p.setStyle(Paint.Style.FILL);
-            c.save();c.clipRect(left+5,top,right-3,bottom);
-            p.setColor(0xff233e36);p.setTextSize(11);
-            c.drawText(b.event.time(),left+6,top+12,p);
-            p.setTextSize(13);p.setTypeface(Typeface.create(Typeface.DEFAULT,Typeface.BOLD));
-            c.drawText(b.event.title(),left+6,top+27,p);
-            p.setTypeface(Typeface.create(Typeface.DEFAULT,Typeface.NORMAL));p.setTextSize(10);
-            c.drawText(b.event.location(),left+6,top+42,p);c.restore();
+            float textLeft = left+8, textWidth = right-textLeft-6, height = bottom-top;
+            if (textWidth <= 0 || height < 10) continue;
+            c.save();c.clipRect(left+4,top+2,right-3,bottom-2);
+            p.setColor(0xff243f35);p.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
+            p.setTextSize(Math.min(14, height-6));
+            if (height < 34) {
+                // A short event gets one readable title, rather than two clipped lines.
+                Paint.FontMetrics metrics = p.getFontMetrics();
+                String title = TextUtils.ellipsize(b.event.title(), p, textWidth, TextUtils.TruncateAt.END).toString();
+                c.drawText(title, textLeft, top+(height-metrics.ascent-metrics.descent)/2, p);
+            } else {
+                p.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));p.setTextSize(11);p.setColor(0xff617067);
+                c.drawText(TextUtils.ellipsize(b.event.time(), p, textWidth, TextUtils.TruncateAt.END).toString(), textLeft, top+11, p);
+                p.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));p.setTextSize(14);p.setColor(0xff243f35);
+                StaticLayout title = StaticLayout.Builder.obtain(b.event.title(),0,b.event.title().length(),p,(int)textWidth)
+                        .setIncludePad(false).setMaxLines(height >= 58 ? 2 : 1).setEllipsize(TextUtils.TruncateAt.END)
+                        .build();
+                c.save();c.translate(textLeft,top+15);title.draw(c);c.restore();
+                float locationY = top+15+title.getHeight()+14;
+                if (!b.event.location().isEmpty() && locationY <= bottom-4) {
+                    p.setTypeface(Typeface.create(Typeface.DEFAULT,Typeface.NORMAL));p.setTextSize(11);p.setColor(0xff617067);
+                    c.drawText(TextUtils.ellipsize(b.event.location(),p,textWidth,TextUtils.TruncateAt.END).toString(),textLeft,locationY,p);
+                }
+            }
+            c.restore();
         }
         if(day.equals(updatedAt.toLocalDate())) {
             LocalTime now=updatedAt.toLocalTime();float y=12+(now.getHour()*60+now.getMinute()+now.getSecond()/60f)*HOUR/60;
-            p.setColor(0xffce5e50);p.setStrokeWidth(2);c.drawLine(44,y,width,y,p);c.drawCircle(44,y,3,p);
-            p.setColor(0xfffafbf7);c.drawRect(0,y-8,41,y+8,p);
-            p.setColor(0xffce5e50);p.setTextSize(10);c.drawText(String.format(Locale.ROOT,"%02d:%02d",now.getHour(),now.getMinute()),0,y+4,p);
+            p.setColor(0xffc96458);p.setStrokeWidth(1.25f);c.drawLine(AXIS,y,width,y,p);c.drawCircle(AXIS,y,2.5f,p);
+            p.setColor(0xfffafbf7);c.drawRect(0,y-8,AXIS-3,y+8,p);
+            p.setColor(0xffb64d42);p.setTextSize(11);c.drawText(String.format(Locale.ROOT,"%02d:%02d",now.getHour(),now.getMinute()),0,y+4,p);
         }
     }
     @Override public boolean onTouchEvent(MotionEvent event) {
@@ -106,7 +126,7 @@ final class TimelineView extends View {
         if(event.getAction()==MotionEvent.ACTION_UP){
             float x=event.getX()/density,y=event.getY()/density;
             for(var b:blocks){
-                float laneWidth=(getWidth()/density-48)/b.columns,left=46+laneWidth*b.lane;
+                float laneWidth=(getWidth()/density-AXIS-4)/b.columns,left=AXIS+2+laneWidth*b.lane;
                 if(x>=left && x<=left+laneWidth-3 && y>=12+b.start*HOUR/60 && y<=12+b.end*HOUR/60){
                     performClick();onEvent.accept(b.event);return true;
                 }

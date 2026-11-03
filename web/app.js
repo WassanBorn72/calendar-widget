@@ -78,9 +78,12 @@ function makeCard(event){
   card.append(duration,title,location);card.addEventListener('click',()=>openEvent(event));return card;
 }
 function updateNow(){
-  const now=new Date(),line=$('now-line');if(!line)return;
+  const now=new Date(),line=$('now-line');
+  const clock=now.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
+  $('clock').textContent=clock;$('live-clock').textContent=clock;
+  if(!line)return;
   const today=selected===localISO(now);line.hidden=!today;
-  if(today){line.style.top=`${(now.getHours()*60+now.getMinutes()+now.getSeconds()/60)*1.2}px`;
+  if(today){line.style.top=`${(now.getHours()*60+now.getMinutes())*1.2}px`;
     line.firstChild.textContent=now.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});}
 }
 function move(days){const date=new Date(`${selected}T12:00:00`);date.setDate(date.getDate()+days);selected=localISO(date);render();}
@@ -95,4 +98,11 @@ $('close-dialog').onclick=()=>$('event-dialog').close();
 $('event-dialog').addEventListener('click',event=>{if(event.target===$('event-dialog')){const r=event.target.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)event.target.close();}});
 render();
 
-setInterval(()=>{if(selected===localISO(new Date()))updateNow();else if(!$('now-line').hidden)render();},1000);
+let browserDay=localISO(new Date());
+function minuteTick(){
+  const day=localISO(new Date());
+  if(day!==browserDay){browserDay=day;render();}else updateNow();
+}
+function scheduleMinute(){setTimeout(()=>{minuteTick();scheduleMinute();},60000-Date.now()%60000);}
+scheduleMinute();
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)minuteTick();});

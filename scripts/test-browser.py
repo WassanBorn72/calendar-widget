@@ -28,10 +28,12 @@ try:
         heights = cards.evaluate_all('(els)=>els.map(e=>parseFloat(e.style.height))')
         assert heights[0] == 36 and heights[3] == 108, heights
         assert page.locator('#now-line').is_visible()
+        assert page.locator('#live-clock').inner_text() == '12:15'
         before = page.locator('#now-line').evaluate('(e)=>parseFloat(e.style.top)')
         assert abs(before - 735*1.2) < 1
         page.clock.run_for(60000)
         after = page.locator('#now-line').evaluate('(e)=>parseFloat(e.style.top)')
+        assert page.locator('#live-clock').inner_text() == '12:16'
         assert abs(after-before-1.2) < 0.1
         assert page.evaluate('placeEvents([{begin:60,finish:120},{begin:90,finish:150}]).every(e=>e.columns===2)')
         cards.first.click()

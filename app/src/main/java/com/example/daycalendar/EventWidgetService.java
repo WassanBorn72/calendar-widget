@@ -56,7 +56,10 @@ public class EventWidgetService extends RemoteViewsService {
         }
         public RemoteViews getLoadingView() { return null; }
         public int getViewTypeCount() { return 2; }
-        public long getItemId(int position) { return position; }
-        public boolean hasStableIds() { return false; }
+        public long getItemId(int position) {
+            if (error != null) return Long.MIN_VALUE;
+            return position < allDay.size() ? allDay.get(position).id() : -1L-(position-allDay.size());
+        }
+        public boolean hasStableIds() { return true; }
     }
 }

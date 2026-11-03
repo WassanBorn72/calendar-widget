@@ -57,8 +57,11 @@ public class TimelineRenderingTest {
         int edge = bitmap.getPixel(220*3, 12*3);
         int fillBefore = bitmap.getPixel(220*3, 8*3);
         int fillAfter = bitmap.getPixel(220*3, 18*3);
-        assertTrue(brightness(edge)+40 < brightness(fillBefore));
-        assertTrue(brightness(edge)+40 < brightness(fillAfter));
+        assertTrue(brightness(edge)+12 < brightness(fillBefore));
+        assertTrue(brightness(edge)+12 < brightness(fillAfter));
+        // The boundary is visible but does not extend a full dp into either card.
+        assertTrue(Math.abs(brightness(bitmap.getPixel(220*3,11*3))-brightness(fillBefore))<3);
+        assertTrue(Math.abs(brightness(bitmap.getPixel(220*3,13*3))-brightness(fillAfter))<3);
         var placed = blocks();
         assertEquals(placed.get(0).end, placed.get(1).start, 0);
         assertEquals(30, placed.get(0).end-placed.get(0).start, 0);
@@ -92,8 +95,11 @@ public class TimelineRenderingTest {
         if(!dir.isDirectory() && !dir.mkdirs())throw new IOException("Cannot create screenshot directory");
         Bitmap image=Bitmap.createBitmap(960,36*3*7,Bitmap.Config.ARGB_8888);
         Canvas c=new Canvas(image);
+        List<CalendarEvent> preview = new ArrayList<>(events());
+        preview.add(event(3,11,15,11,30,"Quick call · project update"));
+        List<DayTimeline.Block> previewBlocks = DayTimeline.layout(preview, DAY, ZONE);
         for(int i=18;i<25;i++) {
-            Bitmap slice=TimelineView.sliceBitmap(320,3,i,DAY,blocks(),DAY.atTime(10,15).atZone(ZONE));
+            Bitmap slice=TimelineView.sliceBitmap(320,3,i,DAY,previewBlocks,DAY.atTime(10,15).atZone(ZONE));
             c.drawBitmap(slice,0,(i-18)*36*3,null);slice.recycle();
         }
         try(OutputStream out=new FileOutputStream(new File(dir,"android-timeline-3x.png"))) {

@@ -27,3 +27,12 @@
 .hour-line{border-top-color:#bcc9bb}.hour-line span{color:#53655e;font-size:10px}
 /* Keep the title legible inside a real 30-minute (36px) event. */
 .timed-event{padding:2px 7px!important}.timed-event h3{margin-top:1px;line-height:1.2}
+
+/* Quieter outlines and a clear hierarchy: title first, supporting text second. */
+.event-card{border:.75px solid #bdcdc0;border-left:2px solid #769885;background:#f3f7f1}
+.event-card.orange{border-color:#ddcdbd;border-left-color:#bc9879;background:#fbf6ef}
+.event-card.purple{border-color:#d3c8dc;border-left-color:#a38bb5;background:#f7f3fa}
+.timed-event h3{font-size:13px;font-weight:500;line-height:1.15;color:#243f35}
+.timed-event .event-time,.timed-event p{color:#617067}.now-line{border-top-width:1.25px}
+
+.live-clock{font-size:20px;font-weight:500;letter-spacing:.5px;color:#233e36;font-variant-numeric:tabular-nums}
