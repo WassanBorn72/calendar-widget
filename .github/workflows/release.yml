@@ -5,9 +5,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Existing release tag (for example v1.0.1)'
+        description: 'Existing release tag (for example v1.0.2)'
         required: true
-        default: 'v1.0.1'
+        default: 'v1.0.2'
 permissions:
   contents: read
 concurrency:
@@ -40,7 +40,7 @@ jobs:
       - id: unit
         run: sh scripts/test-timeline.sh
       - id: build
-        run: ./gradlew :app:assembleDebug :app:lintRelease --no-daemon --max-workers=4
+        run: ./gradlew :app:assembleDebug :app:testDebugUnitTest :app:lintRelease --no-daemon --max-workers=4
       - id: apk
         run: python3 scripts/verify-release.py "$RELEASE_TAG"
       - name: Report failed stage

@@ -3,6 +3,9 @@ import android.app.PendingIntent;
 import android.appwidget.*;
 import android.content.*;
 import android.net.Uri;
+import android.os.Build;
+import android.util.SizeF;
+import java.util.*;
 import android.widget.RemoteViews;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -30,11 +33,31 @@ public class DayWidget extends AppWidgetProvider {
                 || Intent.ACTION_TIMEZONE_CHANGED.equals(a) || Intent.ACTION_TIME_CHANGED.equals(a)) refreshAll(c);
     }
     private static void update(Context c, AppWidgetManager m, int id) {
+        android.os.Bundle options = m.getAppWidgetOptions(id);
+        if (Build.VERSION.SDK_INT >= 31) {
+            ArrayList<SizeF> sizes = options.getParcelableArrayList(AppWidgetManager.OPTION_APPWIDGET_SIZES);
+            if (sizes != null && !sizes.isEmpty()) {
+                Map<SizeF, RemoteViews> variants = new LinkedHashMap<>();
+                for (SizeF size : sizes) {
+                    if (size.getWidth() > 0 && size.getHeight() > 0)
+                        variants.put(size, createViews(c, id, Math.round(size.getWidth())));
+                    if (variants.size() == 16) break;
+                }
+                if (!variants.isEmpty()) { m.updateAppWidget(id, new RemoteViews(variants)); return; }
+            }
+        }
+        boolean landscape = c.getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE;
+        int width = options.getInt(landscape ? AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH : AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 272);
+        m.updateAppWidget(id, createViews(c, id, width));
+    }
+    private static RemoteViews createViews(Context c, int id, int outerWidthDp) {
+        int widthDp = Math.max(128, Math.min(2048, outerWidthDp-32));
         RemoteViews v = new RemoteViews(c.getPackageName(), R.layout.widget);
         v.setTextViewText(R.id.date, LocalDate.now().format(DateTimeFormatter.ofPattern("M月d日 EEE", Locale.JAPANESE)));
         Intent service = new Intent(c, EventWidgetService.class);
         service.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id);
-        service.setData(Uri.parse("daycalendar://widget/" + id));
+        service.putExtra(WidgetRaster.WIDTH_DP, widthDp);
+        service.setData(Uri.parse("daycalendar://widget/" + id + "/" + widthDp));
         v.setRemoteAdapter(R.id.events, service);
         v.setTextViewText(R.id.all_day, "終日予定は一覧の先頭に表示 · 赤線は更新時刻");
         v.setEmptyView(R.id.events, R.id.empty);
@@ -44,6 +67,6 @@ public class DayWidget extends AppWidgetProvider {
         v.setOnClickPendingIntent(R.id.empty, open);
         Intent refresh = new Intent(c, DayWidget.class).setAction("com.example.daycalendar.REFRESH");
         v.setOnClickPendingIntent(R.id.refresh, PendingIntent.getBroadcast(c, 1, refresh, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
-        m.updateAppWidget(id, v);
+        return v;
     }
 }

@@ -17,3 +17,13 @@
 .now-line[hidden]{display:none}.widget .event-list{max-height:430px}.empty-state{padding:10px;font-size:11px}.event-list{overscroll-behavior:contain}
 
 .brand{font-size:18px}
+
+/* Visible outlines preserve event boundaries even for adjacent calendar colors. */
+.event-card{border:1.25px solid #537364;border-left-width:3px;background:#eef3ed}
+.event-card.orange{border-color:#966c48;background:#faf1e6}
+.event-card.purple{border-color:#826996;background:#f2edf7}
+.timed-event{border-radius:4px;border-left-width:3px}
+.timed-event h3{font-size:12px}.timed-event .event-time{font-size:10px;color:#334d41}.timed-event p{font-size:10px;color:#4d6354}
+.hour-line{border-top-color:#bcc9bb}.hour-line span{color:#53655e;font-size:10px}
+/* Keep the title legible inside a real 30-minute (36px) event. */
+.timed-event{padding:2px 7px!important}.timed-event h3{margin-top:1px;line-height:1.2}

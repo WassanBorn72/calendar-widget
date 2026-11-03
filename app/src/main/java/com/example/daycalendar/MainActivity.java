@@ -66,7 +66,7 @@ public class MainActivity extends Activity {
                         LinearLayout card = new LinearLayout(this); card.setOrientation(LinearLayout.VERTICAL);
                         card.setPadding(dp(16), dp(10), dp(16), dp(10));
                         GradientDrawable bg = new GradientDrawable(); bg.setColor(Color.WHITE); bg.setCornerRadius(dp(16));
-                        bg.setStroke(dp(1), event.color()); card.setBackground(bg);
+                        bg.setStroke(dp(1), TimelineView.eventBorderColor(event.color())); card.setBackground(bg);
                         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, -2); lp.setMargins(0, dp(10), 0, 0); body.addView(card, lp);
                         card.addView(text(event.time(), 13, 0xff245e4c));
                         TextView title = text(event.title(), 20, 0xff183b32); title.setTypeface(null, Typeface.BOLD); card.addView(title);

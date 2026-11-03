@@ -1,0 +1,22 @@
+{
+  "applicationId": "io.github.wassanborn72.calendarwidget",
+  "versionName": "1.0.2",
+  "versionCode": 3,
+  "minimumAndroidApi": 26,
+  "targetAndroidApi": 35,
+  "apkSha256": "06fec8150af98ff752531f632ced2af380e64e3ad8a5881ced4fab0c54bb6289",
+  "certificateSha256": "65f378d488d10264fb31b3b702c0b5f4387182b5fe20328055ad1a59cf25e696",
+  "validation": {
+    "releaseBuild": "passed",
+    "releaseLint": "0 errors; 2 API-level compatibility warnings",
+    "androidGraphicsTests": {
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0,
+      "runtime": "Robolectric native Android 35, xxhdpi"
+    },
+    "timelineTests": "passed",
+    "browserTests": "passed",
+    "physicalDevice": "not tested"
+  }
+}

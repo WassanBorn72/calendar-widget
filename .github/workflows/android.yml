@@ -2,7 +2,7 @@ name: Build Android APK
 on:
   push:
     branches: [main]
-    paths: ['app/**', '*.gradle', 'tests/**', 'scripts/test-timeline.sh', '.github/workflows/android.yml']
+    paths: ['app/**', '*.gradle', 'gradle.properties', 'tests/**', 'scripts/test-timeline.sh', '.github/workflows/android.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -25,7 +25,7 @@ jobs:
         with:
           gradle-version: '8.11.1'
       - run: sh scripts/test-timeline.sh
-      - run: ./gradlew :app:assembleDebug :app:lintDebug --no-daemon
+      - run: ./gradlew :app:assembleDebug :app:testDebugUnitTest :app:lintDebug --no-daemon
       - uses: actions/upload-artifact@v4
         with:
           name: android-debug-apk
