@@ -1,1 +1,1 @@
-# calendar_widget
+# calendar-widget
