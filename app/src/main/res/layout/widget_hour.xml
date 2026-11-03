@@ -1,4 +1,4 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
-    <ImageView android:id="@+id/hour_image" android:layout_width="match_parent" android:layout_height="72dp" android:scaleType="fitXY" android:contentDescription="時間別の予定" />
-    <ImageView android:id="@+id/last_hour_image" android:layout_width="match_parent" android:layout_height="96dp" android:scaleType="fitXY" android:contentDescription="23時から24時の予定" android:visibility="gone" />
+    <ImageView android:id="@+id/hour_image" android:layout_width="match_parent" android:layout_height="72dp" android:scaleType="fitXY" android:contentDescription="@string/widget_hour" />
+    <ImageView android:id="@+id/last_hour_image" android:layout_width="match_parent" android:layout_height="96dp" android:scaleType="fitXY" android:contentDescription="@string/widget_last_hour" android:visibility="gone" />
 </LinearLayout>

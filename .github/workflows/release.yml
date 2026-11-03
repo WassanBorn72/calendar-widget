@@ -1,0 +1,58 @@
+name: Release Android
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Existing release tag (for example v1.0.0)'
+        required: true
+        default: 'v1.0.0'
+permissions:
+  contents: read
+concurrency:
+  group: android-release
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      RELEASE_TAG: ${{ inputs.version || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.version || github.ref_name }}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+      - run: sh scripts/test-timeline.sh
+      - run: ./gradlew :app:assembleDebug :app:lintRelease --no-daemon
+      - run: python3 scripts/verify-release.py "$RELEASE_TAG"
+  publish:
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      RELEASE_TAG: ${{ inputs.version || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.version || github.ref_name }}
+      - name: Create release with verified signed APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$RELEASE_TAG" \
+            "release-assets/$RELEASE_TAG/"*.apk \
+            "release-assets/$RELEASE_TAG/hitohi_SHA256SUMS" \
+            "release-assets/$RELEASE_TAG/hitohi_PUBLIC_CERTIFICATE_SHA256.txt" \
+            "release-assets/$RELEASE_TAG/hitohi_release.json" \
+            --verify-tag --title "ひと日 $RELEASE_TAG" \
+            --notes-file "docs/releases/$RELEASE_TAG.md"

@@ -3,3 +3,8 @@
 local.properties
 .idea/
 *.iml
+*.keystore
+*.jks
+*.p12
+*.pem
+*.key

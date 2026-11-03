@@ -1,13 +1,13 @@
-# 今日のカレンダー — Android
+# ひと日（hitohi）— Android
 
 Android 8.0 以降向けのローカルアプリ。端末の Calendar Provider に同期された予定を読み取り、日別の縦長アジェンダとホーム画面ウィジェットに表示します。Google カレンダーへの直接ログインや独自サーバーはありません。Google 以外の表示中のカレンダーも対象です。
 
 ## ビルド
 
-Android Studio でこのフォルダーを開き、JDK 17、Android SDK Platform 35、Build Tools をインストールし、Gradle 8.11.1 を指定して同期してください。Android Gradle Plugin は 8.9.2 です。Gradle Wrapper は未同梱です。Gradle 8.11.1 をインストールした環境では次を実行します。
+Android Studio でこのフォルダーを開き、JDK 17以上、Android SDK Platform 35、Build Tools 35.0.0 を用意してください。SHA-256 を固定した Gradle Wrapper 8.11.1 を同梱しています。Android Gradle Plugin は 8.9.2 です。
 
 ```sh
-gradle :app:assembleDebug :app:lintDebug
+./gradlew :app:assembleDebug :app:lintDebug
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
@@ -28,7 +28,7 @@ Google Maven、Maven Central、Gradle 配布元への接続が必要です。SDK
 
 ## 検証状況
 
-開発クラウドには Android SDK / Gradle がなく、配布元へのプロキシ接続も失敗したため、APK ビルド・Lint・実機動作は未検証です。XML の構文と Git 差分は確認しています。
+Android SDK と JDK / Gradle を導入し、署名付きリリース APK のクリーンビルド・リリース版 Lint・署名検証に成功しています。実機動作は未確認です。
 
 実機では権限の許可・拒否・取り消し、Google 同期、空の日、終日・複数日・繰り返し・深夜をまたぐ予定、タイムゾーン・夏時間の変更、ウィジェットの追加・リサイズ・スクロール・更新・再起動後を確認してください。
 
@@ -53,6 +53,13 @@ Chromium で予定6件、詳細ダイアログ、翌日移動、表示切り替�
 - 赤線は今日だけに表示します。ブラウザは毎秒、Android アプリは毎分更新。ホーム画面ウィジェットは OS の更新制約があるため、赤線は最後のウィジェット更新時点を示します（手動更新可能）。
 - 夏時間のある地域でも時刻ラベルの高さは一定です。秋の繰り返す時間帯で終了時刻が開始時刻より前になる予定は、実経過時間を使って高さを補います。
 
-検証: `sh scripts/test-timeline.sh` は JDK 17以上で時間配置のテストを実行します。今回の環境では JRE のみのため、Maven Central のチェックサムを照合した Eclipse ECJ で同じ実装とテストをコンパイル・実行し、終日分離、予定の長さの比率、重複配置、隣接、日またぎ、空の日が通過しました。Android 全体の APK ビルド・実機動作は引き続き未確認です。
+検証: `sh scripts/test-timeline.sh` は JDK 17以上で時間配置のテストを実行します。今回の環境では JRE のみのため、Maven Central のチェックサムを照合した Eclipse ECJ で同じ実装とテストをコンパイル・実行し、終日分離、予定の長さの比率、重複配置、隣接、日またぎ、空の日が通過しました。正式版準備時には JDK でも同じテストを再実行し通過しています。署名付き APK のビルドと Lint は成功し、実機動作は未確認です。
 
 `python3 scripts/test-browser.py` は Python Playwright と `/usr/bin/chromium` がある環境で、25個の時刻ラベル、等間隔、予定の高さ、現在時刻線の移動、別の日で線が消えること、予定詳細、空の日、ウィジェット切り替え、モバイル幅を検証します。画面画像はデフォルトで `/tmp/calendar-preview` に保存します（`SCREENSHOT_DIR` で変更可能）。
+
+
+## 正式版 APK
+
+[GitHub Releases](https://github.com/WassanBorn72/calendar-widget/releases) にて署名済み APK を配布します。初回バージョンは **v1.0.0**、アプリ ID は `io.github.wassanborn72.hitohi` です。Google Play 向けではなく直接インストール用です。公開状況は Releases ページで確認してください。
+
+署名鍵は公開しません。更新版のビルドと鍵の保管方法は [リリース手順](docs/RELEASING.md)、機能・インストール方法・制限は [リリースノート](docs/releases/v1.0.0.md) を参照してください。

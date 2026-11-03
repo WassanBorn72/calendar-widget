@@ -4,14 +4,46 @@ android {
     namespace 'com.example.daycalendar'
     compileSdk 35
     defaultConfig {
-        applicationId 'com.example.daycalendar'
+        applicationId 'io.github.wassanborn72.hitohi'
         minSdk 26
         targetSdk 35
         versionCode 1
-        versionName '1.0'
+        versionName '1.0.0'
+    }
+    signingConfigs {
+        release {
+            def keyPath = System.getenv('HITOHI_KEYSTORE')
+            def passwordPath = System.getenv('HITOHI_PASSWORD_FILE')
+            if (keyPath && passwordPath) {
+                storeFile file(keyPath)
+                storeType 'JKS'
+                storePassword new File(passwordPath).text.trim()
+                keyAlias 'hitohi'
+                keyPassword new File(passwordPath).text.trim()
+            }
+        }
+    }
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            debuggable false
+            minifyEnabled false
+        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+}
+
+// Never produce a distributable release without the long-lived signing key.
+tasks.register('verifyReleaseSigning') {
+    doLast {
+        if (!System.getenv('HITOHI_KEYSTORE') || !System.getenv('HITOHI_PASSWORD_FILE')) {
+            throw new GradleException('Set HITOHI_KEYSTORE and HITOHI_PASSWORD_FILE to private local files before building a release.')
+        }
+    }
+}
+tasks.matching { it.name == 'assembleRelease' || it.name == 'bundleRelease' }.configureEach {
+    dependsOn 'verifyReleaseSigning'
 }

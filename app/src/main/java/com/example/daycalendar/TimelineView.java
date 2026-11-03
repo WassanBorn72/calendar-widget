@@ -8,6 +8,8 @@ import java.util.*;
 import java.util.function.Consumer;
 
 /** One full day, or one hourly slice for a RemoteViews bitmap. Coordinates are dp. */
+// Instantiated only in code with its required day and events, never inflated from XML.
+@android.annotation.SuppressLint("ViewConstructor")
 final class TimelineView extends View {
     static final int HOUR = 72;
     private final LocalDate day;

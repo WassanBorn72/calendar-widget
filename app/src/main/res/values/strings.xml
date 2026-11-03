@@ -1,3 +1,8 @@
 <resources>
     <string name="widget_description">今日の予定を縦に並べて表示します</string>
+    <string name="widget_title">今日の予定</string>
+    <string name="widget_empty">今日の予定はありません</string>
+    <string name="widget_refresh">↻ 更新</string>
+    <string name="widget_hour">時間別の予定</string>
+    <string name="widget_last_hour">23時から24時の予定</string>
 </resources>
