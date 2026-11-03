@@ -62,6 +62,7 @@ public class MainActivity extends Activity {
                     body.removeView(loading);
                     if (events.isEmpty()) body.addView(text("予定のない日。ひと息つきましょう。\n予定が表示されない場合は、端末の Google アカウントのカレンダー同期と表示設定を確認してください。", 17, 0xff53655e));
                     for (var event : events) {
+                        if (!event.allDay()) continue;
                         LinearLayout card = new LinearLayout(this); card.setOrientation(LinearLayout.VERTICAL);
                         card.setPadding(dp(16), dp(10), dp(16), dp(10));
                         GradientDrawable bg = new GradientDrawable(); bg.setColor(Color.WHITE); bg.setCornerRadius(dp(16));
@@ -77,6 +78,7 @@ public class MainActivity extends Activity {
                             try { startActivity(intent); } catch (ActivityNotFoundException e) { Toast.makeText(this, "カレンダーアプリがありません", Toast.LENGTH_SHORT).show(); }
                         });
                     }
+                    body.addView(new TimelineView(this, selected, events, this::openEvent));
                     button(body, "更新", () -> { render(); DayWidget.refreshAll(this); });
                     button(body, "ホーム画面にウィジェットを追加", this::pinWidget);
                     body.addView(text("ホーム画面のウィジェット一覧からも追加できます。ウィジェットは常に今日の予定を表示します。", 12, 0xff53655e));
@@ -85,6 +87,12 @@ public class MainActivity extends Activity {
                 runOnUiThread(() -> { if (request == generation && !isDestroyed()) loading.setText("読み込めませんでした。権限と同期設定を確認し、アプリを開き直してください。"); });
             }
         });
+    }
+    private void openEvent(CalendarEvent event) {
+        Intent intent = new Intent(Intent.ACTION_VIEW, ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, event.id()));
+        intent.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, event.begin());
+        intent.putExtra(CalendarContract.EXTRA_EVENT_END_TIME, event.end());
+        try { startActivity(intent); } catch (ActivityNotFoundException e) { Toast.makeText(this, "カレンダーアプリがありません", Toast.LENGTH_SHORT).show(); }
     }
     private void button(LinearLayout parent, String label, Runnable action) {
         Button b = new Button(this); b.setText(label); b.setAllCaps(false); b.setOnClickListener(v -> action.run()); parent.addView(b);

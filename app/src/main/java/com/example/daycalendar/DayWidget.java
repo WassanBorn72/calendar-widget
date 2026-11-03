@@ -19,6 +19,10 @@ public class DayWidget extends AppWidgetProvider {
         for (int id : ids) update(c, m, id);
         m.notifyAppWidgetViewDataChanged(ids, R.id.events);
     }
+    @Override public void onAppWidgetOptionsChanged(Context c, AppWidgetManager m, int id, android.os.Bundle options) {
+        update(c, m, id);
+        m.notifyAppWidgetViewDataChanged(new int[]{id}, R.id.events);
+    }
     @Override public void onReceive(Context c, Intent intent) {
         super.onReceive(c, intent);
         String a = intent.getAction();
@@ -32,6 +36,7 @@ public class DayWidget extends AppWidgetProvider {
         service.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id);
         service.setData(Uri.parse("daycalendar://widget/" + id));
         v.setRemoteAdapter(R.id.events, service);
+        v.setTextViewText(R.id.all_day, "終日予定は一覧の先頭に表示 · 赤線は更新時刻");
         v.setEmptyView(R.id.events, R.id.empty);
         v.setTextViewText(R.id.empty, CalendarEvents.permitted(c) ? "今日の予定はありません" : "タップしてカレンダーの読み取りを許可");
         PendingIntent open = PendingIntent.getActivity(c, 0, new Intent(c, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);

@@ -12,19 +12,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 final class CalendarEvents {
-    record Event(long id, String title, String location, long begin, long end, boolean allDay, int color) {
-        String time() {
-            if (allDay) return "終日";
-            DateTimeFormatter f = DateTimeFormatter.ofPattern("HH:mm");
-            ZoneId zone = ZoneId.systemDefault();
-            return f.format(Instant.ofEpochMilli(begin).atZone(zone)) + " – "
-                    + f.format(Instant.ofEpochMilli(end).atZone(zone));
-        }
-    }
     static boolean permitted(Context c) {
         return c.checkSelfPermission(Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED;
     }
-    static List<Event> load(Context c, LocalDate date) {
+    static List<CalendarEvent> load(Context c, LocalDate date) {
         if (!permitted(c)) throw new SecurityException("カレンダーへのアクセスを許可してください");
         ZoneId zone = ZoneId.systemDefault();
         long start = date.atStartOfDay(zone).toInstant().toEpochMilli();
@@ -35,7 +26,7 @@ final class CalendarEvents {
         ContentUris.appendId(uri, start - 86400000L);
         ContentUris.appendId(uri, end + 86400000L);
         String[] projection = {"event_id", "title", "eventLocation", "begin", "end", "allDay", "calendar_color"};
-        List<Event> result = new ArrayList<>();
+        List<CalendarEvent> result = new ArrayList<>();
         try (Cursor rows = c.getContentResolver().query(uri.build(), projection,
                 "visible = ? AND deleted = ?", new String[]{"1", "0"}, "allDay DESC, begin ASC")) {
             if (rows == null) throw new IllegalStateException("カレンダーを読み込めませんでした");
@@ -48,7 +39,7 @@ final class CalendarEvents {
                     LocalDate last = Instant.ofEpochMilli(e).atZone(ZoneOffset.UTC).toLocalDate();
                     included = !date.isBefore(first) && date.isBefore(last);
                 } else included = b < end && (e > start || (b == e && b >= start));
-                if (included) result.add(new Event(rows.getLong(0),
+                if (included) result.add(new CalendarEvent(rows.getLong(0),
                         rows.isNull(1) || rows.getString(1).trim().isEmpty() ? "（タイトルなし）" : rows.getString(1),
                         rows.isNull(2) ? "" : rows.getString(2), b, e, all, rows.getInt(6)));
             }

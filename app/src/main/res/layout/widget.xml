@@ -1,6 +1,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="@drawable/widget_background">
     <TextView android:id="@+id/date" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="今日の予定" android:textSize="22sp" android:textStyle="bold" android:textColor="#183B32" android:paddingBottom="12dp" />
-    <ListView android:id="@+id/events" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:divider="@android:color/transparent" android:dividerHeight="8dp" />
+    <TextView android:id="@+id/all_day" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="12sp" android:textColor="#53655E" android:paddingBottom="8dp" />
+    <ListView android:id="@+id/events" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:divider="@android:color/transparent" android:dividerHeight="0dp" />
     <TextView android:id="@+id/empty" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="今日の予定はありません" android:textColor="#53655E" android:padding="12dp" />
     <TextView android:id="@+id/refresh" android:layout_width="match_parent" android:layout_height="48dp" android:gravity="center" android:text="↻ 更新" android:textColor="#245E4C" android:textSize="14sp" />
 </LinearLayout>

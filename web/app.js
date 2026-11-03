@@ -22,23 +22,66 @@ function render(){
   const events = day.getDay() === 0 ? [] : day.getDay() === 6 ? samples.filter(e=>e.type !== 'green') : samples;
   $('summary').innerHTML = `<span><strong>${events.length}</strong> 件の予定</span><span class="divider"></span><span>${events.length ? '自分のペースで、いい一日を。' : '今日は、余白を楽しもう。'}</span>`;
   $('event-list').replaceChildren();
-  if(!events.length){const empty=document.createElement('p');empty.className='empty-state';empty.textContent='今日は予定のない日。\nひと息つきましょう。';$('event-list').append(empty);}
-  events.forEach(event=>{
-    const row=document.createElement('div');row.className='event-row';
-    const time=document.createElement('span');time.className='time-label';time.textContent=event.start;
-    const card=document.createElement('button');card.className=`event-card ${event.type}`;
-    const category=document.createElement('span');category.className='category';category.textContent=event.category;
-    const title=document.createElement('h3');title.textContent=event.title;
-    const duration=document.createElement('span');duration.className='event-time';duration.textContent=event.end ? `${event.start} — ${event.end}` : 'ALL DAY';
-    const location=document.createElement('p');location.textContent=`⌖ ${event.location}`;
-    card.append(category,title,duration,location);card.addEventListener('click',()=>openEvent(event));
-    row.append(time,card);$('event-list').append(row);
+  const allDay = document.createElement('div'); allDay.className='all-day-events';
+  events.filter(e=>!e.end).forEach(event=>allDay.append(makeCard(event)));
+  if(allDay.childElementCount) $('event-list').append(allDay);
+  const timeline=document.createElement('div');timeline.className='timeline';
+  for(let hour=0;hour<=24;hour++){
+    const line=document.createElement('div');line.className=hour===24?'hour-line day-end':'hour-line';line.style.top=`${hour*72}px`;
+    const label=document.createElement('span');label.textContent=`${String(hour).padStart(2,'0')}:00`;
+    line.append(label);timeline.append(line);
+  }
+  const timed=events.filter(e=>e.end).map(e=>({...e,begin:minutes(e.start),finish:minutes(e.end)}));
+  const placed=placeEvents(timed);
+  placed.forEach(event=>{
+    const card=makeCard(event);card.classList.add('timed-event');
+    card.style.top=`${event.begin*1.2}px`;card.style.height=`${(event.finish-event.begin)*1.2}px`;
+    card.style.left=`calc(46px + (100% - 50px) * ${event.lane/event.columns})`;
+    card.style.width=`calc((100% - 50px) / ${event.columns} - 3px)`;
+    timeline.append(card);
+  });
+  const marker=document.createElement('div');marker.id='now-line';marker.className='now-line';
+  marker.append(document.createElement('span'));timeline.append(marker);
+  $('event-list').append(timeline);
+  if(!events.length){const empty=document.createElement('p');empty.className='empty-state';empty.textContent='今日は予定のない日。時間の余白を楽しみましょう。';$('event-list').prepend(empty);}
+  updateNow();
+  requestAnimationFrame(()=>{
+    const now=new Date();
+    const hour=isToday?Math.max(0,now.getHours()-1):8;
+    $('event-list').scrollTop=hour*72+(allDay.childElementCount?allDay.offsetHeight:0);
   });
   $('device').classList.toggle('widget',widget);
   $('agenda-mode').classList.toggle('selected',!widget);$('widget-mode').classList.toggle('selected',widget);
   $('agenda-mode').setAttribute('aria-pressed',String(!widget));$('widget-mode').setAttribute('aria-pressed',String(widget));
   $('preview-kind').textContent=widget?'HOME WIDGET PREVIEW':'APP PREVIEW';
-  $('caption').textContent=widget?'ホーム画面に、今日の予定を。':'一日の予定を、縦にすっきり。';
+  $('caption').textContent=widget?'ホーム画面に、今日の予定を。':'0〜24時を、一定の時間幅で。';
+}
+const minutes=value=>{const [h,m]=value.split(':').map(Number);return h*60+m;};
+function placeEvents(events){
+  const sorted=[...events].sort((a,b)=>a.begin-b.begin||b.finish-a.finish);
+  let group=[],end=-1;
+  const result=[];
+  function flush(){
+    const lanes=[];
+    for(const e of group){let lane=lanes.findIndex(stop=>stop<=e.begin);if(lane<0)lane=lanes.length;lanes[lane]=e.finish;e.lane=lane;}
+    group.forEach(e=>{e.columns=lanes.length;result.push(e);});group=[];
+  }
+  for(const event of sorted){if(event.begin>=end){flush();end=-1;}group.push(event);end=Math.max(end,event.finish);}
+  flush();return result;
+}
+function makeCard(event){
+  const card=document.createElement('button');card.className=`event-card ${event.type}`;
+  card.setAttribute('aria-label',`${event.start}${event.end?'〜'+event.end:' 終日'} ${event.title}`);
+  const title=document.createElement('h3');title.textContent=event.title;
+  const duration=document.createElement('span');duration.className='event-time';duration.textContent=event.end?`${event.start} — ${event.end}`:'終日';
+  const location=document.createElement('p');location.textContent=`⌖ ${event.location}`;
+  card.append(duration,title,location);card.addEventListener('click',()=>openEvent(event));return card;
+}
+function updateNow(){
+  const now=new Date(),line=$('now-line');if(!line)return;
+  const today=selected===localISO(now);line.hidden=!today;
+  if(today){line.style.top=`${(now.getHours()*60+now.getMinutes()+now.getSeconds()/60)*1.2}px`;
+    line.firstChild.textContent=now.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});}
 }
 function move(days){const date=new Date(`${selected}T12:00:00`);date.setDate(date.getDate()+days);selected=localISO(date);render();}
 function openEvent(event){$('dialog-title').textContent=event.title;$('dialog-time').textContent=`${selected} · ${event.start}${event.end?' — '+event.end:''}`;$('dialog-location').textContent=event.location;$('event-dialog').showModal();}
@@ -51,3 +94,5 @@ $('refresh').onclick=()=>{render();$('footer-note').textContent='プレビュー
 $('close-dialog').onclick=()=>$('event-dialog').close();
 $('event-dialog').addEventListener('click',event=>{if(event.target===$('event-dialog')){const r=event.target.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)event.target.close();}});
 render();
+
+setInterval(()=>{if(selected===localISO(new Date()))updateNow();else if(!$('now-line').hidden)render();},1000);
