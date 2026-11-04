@@ -1,0 +1,4 @@
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/native_label" android:layout_width="50dp" android:layout_height="16dp"
+    android:includeFontPadding="false" android:gravity="center_vertical" android:textSize="11sp"
+    android:textColor="#53655E" android:importantForAccessibility="no" />

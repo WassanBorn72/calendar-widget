@@ -38,10 +38,9 @@ public class DayWidget extends AppWidgetProvider {
             ArrayList<SizeF> sizes = options.getParcelableArrayList(AppWidgetManager.OPTION_APPWIDGET_SIZES);
             if (sizes != null && !sizes.isEmpty()) {
                 Map<SizeF, RemoteViews> variants = new LinkedHashMap<>();
-                for (SizeF size : sizes) {
+                for (SizeF size : collectionSizes(sizes)) {
                     if (size.getWidth() > 0 && size.getHeight() > 0)
                         variants.put(size, createViews(c, id, Math.round(size.getWidth())));
-                    if (variants.size() == 16) break;
                 }
                 if (!variants.isEmpty()) { m.updateAppWidget(id, new RemoteViews(variants)); return; }
             }
@@ -50,6 +49,21 @@ public class DayWidget extends AppWidgetProvider {
         int width = options.getInt(landscape ? AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH : AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 272);
         m.updateAppWidget(id, createViews(c, id, width));
     }
+    // The platform divides its collection parcel budget among responsive sizes.
+    // Four representative widths retain small/large layouts without starving the last rows.
+    static List<SizeF> collectionSizes(List<SizeF> sizes) {
+        TreeMap<Integer,SizeF> byWidth=new TreeMap<>();
+        for(SizeF size:sizes) if(size.getWidth()>0 && size.getHeight()>0) {
+            int width=Math.round(size.getWidth());
+            SizeF previous=byWidth.get(width);
+            if(previous==null || size.getHeight()<previous.getHeight())byWidth.put(width,size);
+        }
+        List<SizeF> unique=new ArrayList<>(byWidth.values());
+        if(unique.size()<=4)return unique;
+        List<SizeF> selected=new ArrayList<>();
+        for(int i=0;i<4;i++)selected.add(unique.get(i*(unique.size()-1)/3));
+        return selected;
+    }
     private static RemoteViews createViews(Context c, int id, int outerWidthDp) {
         int widthDp = Math.max(128, Math.min(2048, outerWidthDp-32));
         RemoteViews v = new RemoteViews(c.getPackageName(), R.layout.widget);
@@ -57,7 +71,7 @@ public class DayWidget extends AppWidgetProvider {
         Intent service = new Intent(c, EventWidgetService.class);
         service.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id);
         service.putExtra(WidgetRaster.WIDTH_DP, widthDp);
-        service.setData(Uri.parse("daycalendar://widget/" + id + "/" + widthDp));
+        service.setData(Uri.parse("daycalendar://widget/" + id + "/" + widthDp + (Build.VERSION.SDK_INT>=31?"/native":"/raster")));
         v.setRemoteAdapter(R.id.events, service);
         String updated = java.time.LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"));
         v.setTextViewText(R.id.all_day, "赤線 " + updated + " 時点 · " + (MinuteUpdateService.isRunning() ? "毎分更新中" : "アプリで毎分更新をON"));

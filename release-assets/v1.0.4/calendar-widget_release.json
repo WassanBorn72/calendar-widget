@@ -1,0 +1,29 @@
+{
+  "applicationId": "io.github.wassanborn72.calendarwidget",
+  "versionName": "1.0.4",
+  "versionCode": 5,
+  "minimumAndroidApi": 26,
+  "targetAndroidApi": 35,
+  "apkSha256": "4f2cbbc9f9c0a39975f0db46b0b454e629814e673549428019966b6e9803d5ba",
+  "certificateSha256": "65f378d488d10264fb31b3b702c0b5f4387182b5fe20328055ad1a59cf25e696",
+  "validation": {
+    "releaseBuild": "passed",
+    "releaseLint": "0 errors; 11 warnings",
+    "androidUnitTests": {
+      "passed": 21,
+      "failed": 0,
+      "skipped": 0,
+      "coverage": [
+        "full-day transfer under framework memory and parcel limits",
+        "20:00 to 24:00 labels and 23:45 appointment",
+        "scroll to end and preserve position on refresh on Android 26 and 35",
+        "23:58 time line and responsive size budgets",
+        "minute updates, notifications, native graphics and clock"
+      ]
+    },
+    "modernWidgetCollectionBitmapBytes": 0,
+    "timelineTests": "passed",
+    "browserTests": "not rerun: web sources unchanged",
+    "physicalDevice": "not tested"
+  }
+}

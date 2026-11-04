@@ -1,0 +1,8 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/native_event" android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:background="@drawable/native_event_background" android:clipChildren="true">
+    <ImageView android:id="@+id/native_accent" android:layout_width="2dp" android:layout_height="match_parent" android:background="#769885" android:importantForAccessibility="no" />
+    <TextView android:id="@+id/native_event_time" android:layout_width="match_parent" android:layout_height="14dp" android:layout_marginLeft="8dp" android:layout_marginRight="6dp" android:layout_marginTop="1dp" android:includeFontPadding="false" android:gravity="center_vertical" android:textSize="11sp" android:textColor="#617067" android:singleLine="true" android:ellipsize="end" />
+    <TextView android:id="@+id/native_event_title" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginLeft="8dp" android:layout_marginRight="6dp" android:layout_marginTop="15dp" android:includeFontPadding="false" android:fontFamily="sans-serif-medium" android:textSize="14sp" android:textColor="#243F35" android:maxLines="2" android:ellipsize="end" />
+    <TextView android:id="@+id/native_event_location" android:layout_width="match_parent" android:layout_height="14dp" android:layout_marginLeft="8dp" android:layout_marginRight="6dp" android:layout_marginTop="48dp" android:includeFontPadding="false" android:gravity="center_vertical" android:textSize="11sp" android:textColor="#617067" android:singleLine="true" android:ellipsize="end" />
+</FrameLayout>
