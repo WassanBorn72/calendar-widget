@@ -59,6 +59,7 @@ public class EventWidgetService extends RemoteViewsService {
             } else {
                 if (position < 0) return null;
                 var e = allDay.get(position);
+                EventCardViews.color(v,R.id.card_fill,R.id.card_outline,R.id.card_accent,e.color());
                 v.setTextViewText(R.id.time, e.time()); v.setTextViewText(R.id.title, e.title()); v.setTextViewText(R.id.location, e.location());
             }
             return v;

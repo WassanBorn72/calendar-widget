@@ -52,12 +52,7 @@ final class TimelineView extends View {
         return bitmap;
     }
     static int eventBorderColor(int color) {
-        return mix(mix(color == 0 ? 0xff36674e : color, 0xff233e36, .55f), Color.WHITE, .62f);
-    }
-    private static int mix(int a, int b, float ratio) {
-        return Color.rgb(Math.round(Color.red(a)*(1-ratio)+Color.red(b)*ratio),
-                Math.round(Color.green(a)*(1-ratio)+Color.green(b)*ratio),
-                Math.round(Color.blue(a)*(1-ratio)+Color.blue(b)*ratio));
+        return EventColors.border(color);
     }
     private static void drawTimeline(Canvas c, float width, LocalDate day, List<DayTimeline.Block> blocks,
                                      float from, float to, ZonedDateTime updatedAt) {
@@ -74,13 +69,13 @@ final class TimelineView extends View {
             float top = (float)(12+b.start*HOUR/60), bottom=(float)(12+b.end*HOUR/60);
             if(bottom < from || top > to) continue;
             float laneWidth=(width-AXIS-4)/b.columns,left=AXIS+2+laneWidth*b.lane,right=left+laneWidth-3;
-            int color=b.event.color()==0?0xff36674e:b.event.color();
+            int color=EventColors.accent(b.event.color());
             float visibleBottom = Math.max(top+1, bottom);
             RectF bounds = new RectF(left, top, right, visibleBottom);
-            p.setColor(mix(color, Color.WHITE, .94f));
+            p.setColor(EventColors.fill(color));
             c.drawRoundRect(bounds, 4, 4, p);
             c.save();c.clipRect(left, top, left+2, visibleBottom);
-            p.setColor(mix(color, 0xff233e36, .15f));c.drawRoundRect(bounds, 4, 4, p);c.restore();
+            p.setColor(EventColors.accent(color));c.drawRoundRect(bounds, 4, 4, p);c.restore();
             // Stroke stays inside the exact time bounds: adjacent same-color events
             // retain distinct top/bottom edges without changing their duration.
             float stroke = Math.min(.5f, visibleBottom-top);
@@ -99,7 +94,7 @@ final class TimelineView extends View {
                 String title = TextUtils.ellipsize(b.event.title(), p, textWidth, TextUtils.TruncateAt.END).toString();
                 c.drawText(title, textLeft, top+(height-metrics.ascent-metrics.descent)/2, p);
             } else {
-                p.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));p.setTextSize(11);p.setColor(0xff617067);
+                p.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));p.setTextSize(11);p.setColor(EventColors.SECONDARY_TEXT);
                 c.drawText(TextUtils.ellipsize(b.event.time(), p, textWidth, TextUtils.TruncateAt.END).toString(), textLeft, top+11, p);
                 p.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));p.setTextSize(14);p.setColor(0xff243f35);
                 StaticLayout title = StaticLayout.Builder.obtain(b.event.title(),0,b.event.title().length(),p,(int)textWidth)
@@ -108,7 +103,7 @@ final class TimelineView extends View {
                 c.save();c.translate(textLeft,top+15);title.draw(c);c.restore();
                 float locationY = top+15+title.getHeight()+14;
                 if (!b.event.location().isEmpty() && locationY <= bottom-4) {
-                    p.setTypeface(Typeface.create(Typeface.DEFAULT,Typeface.NORMAL));p.setTextSize(11);p.setColor(0xff617067);
+                    p.setTypeface(Typeface.create(Typeface.DEFAULT,Typeface.NORMAL));p.setTextSize(11);p.setColor(EventColors.SECONDARY_TEXT);
                     c.drawText(TextUtils.ellipsize(b.event.location(),p,textWidth,TextUtils.TruncateAt.END).toString(),textLeft,locationY,p);
                 }
             }

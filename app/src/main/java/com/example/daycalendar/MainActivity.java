@@ -95,7 +95,7 @@ public class MainActivity extends Activity {
                         if (!event.allDay()) continue;
                         LinearLayout card = new LinearLayout(this); card.setOrientation(LinearLayout.VERTICAL);
                         card.setPadding(dp(16), dp(10), dp(16), dp(10));
-                        GradientDrawable bg = new GradientDrawable(); bg.setColor(Color.WHITE); bg.setCornerRadius(dp(16));
+                        GradientDrawable bg = new GradientDrawable(); bg.setColor(EventColors.fill(event.color())); bg.setCornerRadius(dp(16));
                         bg.setStroke(Math.max(1, Math.round(.5f*getResources().getDisplayMetrics().density)), TimelineView.eventBorderColor(event.color())); card.setBackground(bg);
                         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, -2); lp.setMargins(0, dp(10), 0, 0); body.addView(card, lp);
                         card.addView(text(event.time(), 13, 0xff245e4c));

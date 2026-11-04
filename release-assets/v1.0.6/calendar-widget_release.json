@@ -1,0 +1,30 @@
+{
+  "applicationId": "io.github.wassanborn72.calendarwidget",
+  "versionName": "1.0.6",
+  "versionCode": 7,
+  "minimumAndroidApi": 26,
+  "targetAndroidApi": 35,
+  "apkSha256": "4d19c2f8026f42a037282f3af0704164bdbda78b239e3634f57863abd1aa6726",
+  "certificateSha256": "65f378d488d10264fb31b3b702c0b5f4387182b5fe20328055ad1a59cf25e696",
+  "validation": {
+    "releaseBuild": "passed",
+    "releaseLint": "0 errors; 11 warnings",
+    "androidUnitTests": {
+      "passed": 38,
+      "failed": 0,
+      "skipped": 0,
+      "coverage": [
+        "Calendar Provider event/display/calendar color precedence on Android 26 and 35",
+        "missing, black and translucent source colors",
+        "native fill pixels and zero bitmap payload",
+        "reused rows replace old color tints",
+        "all-day cards on Android 26 and 35",
+        "color hue and secondary text contrast >=4.5:1",
+        "full day, refresh reapply, minute updates and notification lifecycle"
+      ]
+    },
+    "timelineTests": "passed",
+    "browserTests": "not rerun: web sources unchanged",
+    "physicalDevice": "not tested; real Google account color sync not verified"
+  }
+}

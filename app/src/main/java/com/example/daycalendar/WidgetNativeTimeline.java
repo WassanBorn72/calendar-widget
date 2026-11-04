@@ -42,7 +42,7 @@ final class WidgetNativeTimeline {
             if (eventWidth<=0) continue;
             RemoteViews event=new RemoteViews(c.getPackageName(),R.layout.widget_native_event);
             position(event,R.id.native_event,left,top-offset,eventWidth,eventHeight);
-            event.setInt(R.id.native_accent,"setBackgroundColor",block.event.color()==0?0xff769885:block.event.color());
+            EventCardViews.color(event,R.id.native_event_fill,R.id.native_event_outline,R.id.native_accent,block.event.color());
             event.setTextViewText(R.id.native_event_title,block.event.title());
             event.setTextViewText(R.id.native_event_time,block.event.time());
             event.setTextViewText(R.id.native_event_location,block.event.location());

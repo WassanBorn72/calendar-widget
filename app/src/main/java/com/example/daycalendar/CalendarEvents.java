@@ -12,6 +12,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 final class CalendarEvents {
+    private static Integer nullableColor(Cursor rows, int column) { return rows.isNull(column) ? null : rows.getInt(column); }
     static boolean permitted(Context c) {
         return c.checkSelfPermission(Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED;
     }
@@ -25,7 +26,8 @@ final class CalendarEvents {
         Uri.Builder uri = CalendarContract.Instances.CONTENT_URI.buildUpon();
         ContentUris.appendId(uri, start - 86400000L);
         ContentUris.appendId(uri, end + 86400000L);
-        String[] projection = {"event_id", "title", "eventLocation", "begin", "end", "allDay", "calendar_color"};
+        String[] projection = {"event_id", "title", "eventLocation", "begin", "end", "allDay",
+                CalendarContract.Events.CALENDAR_COLOR, CalendarContract.Events.EVENT_COLOR, CalendarContract.Events.DISPLAY_COLOR};
         List<CalendarEvent> result = new ArrayList<>();
         try (Cursor rows = c.getContentResolver().query(uri.build(), projection,
                 "visible = ? AND deleted = ?", new String[]{"1", "0"}, "allDay DESC, begin ASC")) {
@@ -41,7 +43,7 @@ final class CalendarEvents {
                 } else included = b < end && (e > start || (b == e && b >= start));
                 if (included) result.add(new CalendarEvent(rows.getLong(0),
                         rows.isNull(1) || rows.getString(1).trim().isEmpty() ? "（タイトルなし）" : rows.getString(1),
-                        rows.isNull(2) ? "" : rows.getString(2), b, e, all, rows.getInt(6)));
+                        rows.isNull(2) ? "" : rows.getString(2), b, e, all, EventColors.resolve(nullableColor(rows,7),nullableColor(rows,8),nullableColor(rows,6))));
             }
         }
         return result;
