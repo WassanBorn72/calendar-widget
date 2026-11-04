@@ -8,9 +8,9 @@ import subprocess
 import sys
 
 root = Path(__file__).resolve().parents[1]
-version = sys.argv[1] if len(sys.argv) > 1 else 'v1.0.4'
+version = sys.argv[1] if len(sys.argv) > 1 else 'v1.0.5'
 if not re.fullmatch(r'v\d+\.\d+\.\d+', version):
-    raise SystemExit('Expected a semantic-version tag, such as v1.0.4')
+    raise SystemExit('Expected a semantic-version tag, such as v1.0.5')
 assets = root / 'release-assets' / version
 manifest = json.loads((assets / 'calendar-widget_release.json').read_text())
 apk = assets / f'calendar-widget-{version}.apk'

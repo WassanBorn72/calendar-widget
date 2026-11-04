@@ -71,7 +71,7 @@ public class DayWidget extends AppWidgetProvider {
         Intent service = new Intent(c, EventWidgetService.class);
         service.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id);
         service.putExtra(WidgetRaster.WIDTH_DP, widthDp);
-        service.setData(Uri.parse("daycalendar://widget/" + id + "/" + widthDp + (Build.VERSION.SDK_INT>=31?"/native":"/raster")));
+        service.setData(Uri.parse("daycalendar://widget/" + id + "/" + widthDp + (Build.VERSION.SDK_INT>=31?"/native-v2":"/raster")));
         v.setRemoteAdapter(R.id.events, service);
         String updated = java.time.LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"));
         v.setTextViewText(R.id.all_day, "赤線 " + updated + " 時点 · " + (MinuteUpdateService.isRunning() ? "毎分更新中" : "アプリで毎分更新をON"));

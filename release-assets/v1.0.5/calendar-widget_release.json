@@ -1,0 +1,30 @@
+{
+  "applicationId": "io.github.wassanborn72.calendarwidget",
+  "versionName": "1.0.5",
+  "versionCode": 6,
+  "minimumAndroidApi": 26,
+  "targetAndroidApi": 35,
+  "apkSha256": "1aa6b70a289e0b0766bcf7f541fa33b25081c3685845729b6051c07e8c508313",
+  "certificateSha256": "65f378d488d10264fb31b3b702c0b5f4387182b5fe20328055ad1a59cf25e696",
+  "validation": {
+    "releaseBuild": "passed",
+    "releaseLint": "0 errors; 11 warnings",
+    "androidUnitTests": {
+      "passed": 26,
+      "failed": 0,
+      "skipped": 0,
+      "coverage": [
+        "repeated minute/manual reapply without accumulating children",
+        "edited and deleted appointments, recycled rows, resizing and date change",
+        "Binder-transported reapply pixel-equivalent to fresh inflation",
+        "no current-time label overprinting fixed hour labels",
+        "full-day 0-24 transfer and scrolling on Android 26 and 35",
+        "minute refresh loop, notification control and native rendering"
+      ]
+    },
+    "regressionReproduction": "4 reapply tests failed before fix and passed after fix",
+    "timelineTests": "passed",
+    "browserTests": "not rerun: web sources unchanged",
+    "physicalDevice": "not tested"
+  }
+}

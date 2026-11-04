@@ -117,8 +117,7 @@ final class TimelineView extends View {
         if(day.equals(updatedAt.toLocalDate())) {
             LocalTime now=updatedAt.toLocalTime();float y=12+(now.getHour()*60+now.getMinute()+now.getSecond()/60f)*HOUR/60;
             p.setColor(0xffc96458);p.setStrokeWidth(1.25f);c.drawLine(AXIS,y,width,y,p);c.drawCircle(AXIS,y,2.5f,p);
-            p.setColor(0xfffafbf7);c.drawRect(0,y-8,AXIS-3,y+8,p);
-            p.setColor(0xffb64d42);p.setTextSize(11);c.drawText(String.format(Locale.ROOT,"%02d:%02d",now.getHour(),now.getMinute()),0,y+4,p);
+            // Current time is shown by the header clock, leaving the hour axis clear.
         }
     }
     @Override public boolean onTouchEvent(MotionEvent event) {

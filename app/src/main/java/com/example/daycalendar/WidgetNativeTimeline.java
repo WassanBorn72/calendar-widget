@@ -9,7 +9,6 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.RemoteViews;
 import java.time.*;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /** Native text and shapes avoid the full-collection bitmap cap on newer hosts. */
@@ -22,12 +21,15 @@ final class WidgetNativeTimeline {
                              List<DayTimeline.Block> blocks, ZonedDateTime updatedAt) {
         int offset = index*WidgetRaster.SLICE_HEIGHT, height = WidgetRaster.sliceHeight(index);
         RemoteViews row = new RemoteViews(c.getPackageName(), R.layout.widget_native_slice);
+        // Hosts recycle rows with RemoteViews.reapply(). Replace dynamic children
+        // before adding this snapshot, otherwise old events and markers accumulate.
+        row.removeAllViews(R.id.slice_root);
         row.setViewLayoutHeight(R.id.slice_root, height, DP);
         for (int hour=0;hour<=24;hour++) {
             float y=12+hour*TimelineView.HOUR-offset;
             if (y>=-8 && y<=height+8) {
                 line(c,row,width,y,1,0xffbcc9bb);
-                label(c,row,String.format(Locale.ROOT,"%02d:00",hour),y-8,0xff53655e,false);
+                label(c,row,String.format(Locale.ROOT,"%02d:00",hour),y-8,0xff53655e);
             }
             if (hour<24 && y+TimelineView.HOUR/2f>=0 && y+TimelineView.HOUR/2f<=height)
                 line(c,row,width,y+TimelineView.HOUR/2f,1,0xffdfe5da);
@@ -84,7 +86,7 @@ final class WidgetNativeTimeline {
                 position(dot,R.id.native_line,TimelineView.AXIS-2.5f,y-2.5f,5,5);
                 dot.setInt(R.id.native_line,"setBackgroundResource",R.drawable.time_dot);
                 row.addView(R.id.slice_root,dot);
-                label(c,row,now.format(DateTimeFormatter.ofPattern("HH:mm")),y-8,0xffb64d42,true);
+                // The live clock is in the header; keep fixed hour labels unobscured.
             }
         }
         return row;
@@ -95,14 +97,10 @@ final class WidgetNativeTimeline {
         line.setInt(R.id.native_line,"setBackgroundColor",color);
         row.addView(R.id.slice_root,line);
     }
-    private static void label(Context c, RemoteViews row, String text, float top, int color, boolean current) {
+    private static void label(Context c, RemoteViews row, String text, float top, int color) {
         RemoteViews label=new RemoteViews(c.getPackageName(),R.layout.widget_native_label);
         label.setTextViewText(R.id.native_label,text);label.setTextColor(R.id.native_label,color);
         label.setViewLayoutMargin(R.id.native_label,RemoteViews.MARGIN_TOP,top,DP);
-        if(current) {
-            label.setViewLayoutWidth(R.id.native_label,TimelineView.AXIS-3,DP);
-            label.setInt(R.id.native_label,"setBackgroundColor",0xfffafbf7);
-        }
         row.addView(R.id.slice_root,label);
     }
     private static void position(RemoteViews view, int id, float x, float y, float width, float height) {

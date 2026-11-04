@@ -129,7 +129,8 @@ public class WidgetFullDayTest {
         RemoteViews end=WidgetNativeTimeline.slice(controller.get(),320,48,day,Collections.emptyList(),day.atTime(23,58).atZone(ZoneId.systemDefault()));
         View view=end.apply(controller.get(),new FrameLayout(controller.get()));
         List<String> labels=new ArrayList<>();collectText(view,labels);
-        assertTrue(labels.contains("23:58"));assertTrue(labels.contains("24:00"));
+        assertTrue(labels.contains("24:00"));
+        assertFalse("Live time is in the header and must not overlap 24:00",labels.contains("23:58"));
         List<android.util.SizeF> sizes=new ArrayList<>();
         for(int i=0;i<16;i++)sizes.add(new android.util.SizeF(200+20*i,400));
         List<android.util.SizeF> selected=DayWidget.collectionSizes(sizes);
