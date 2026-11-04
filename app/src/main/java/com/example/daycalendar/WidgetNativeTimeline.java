@@ -42,6 +42,7 @@ final class WidgetNativeTimeline {
             if (eventWidth<=0) continue;
             RemoteViews event=new RemoteViews(c.getPackageName(),R.layout.widget_native_event);
             position(event,R.id.native_event,left,top-offset,eventWidth,eventHeight);
+            event.setOnClickFillInIntent(R.id.native_event_hit,WidgetEventAction.event(block.event));
             EventCardViews.color(event,R.id.native_event_fill,R.id.native_event_outline,R.id.native_accent,block.event.color());
             event.setTextViewText(R.id.native_event_title,block.event.title());
             event.setTextViewText(R.id.native_event_time,block.event.time());

@@ -30,6 +30,8 @@ public class EventWidgetService extends RemoteViewsService {
         public RemoteViews getViewAt(int position) {
             RemoteViews v = new RemoteViews(getPackageName(), R.layout.widget_event);
             if (error != null) {
+                // A recycled all-day card must never retain its previous event target.
+                v.setOnClickFillInIntent(R.id.card_root,new Intent());
                 v.setTextViewText(R.id.time, "読み込みできません"); v.setTextViewText(R.id.title, error); v.setTextViewText(R.id.location, "");
             } else if (position >= allDay.size()) {
                 int slice = position-allDay.size();
@@ -45,6 +47,9 @@ public class EventWidgetService extends RemoteViewsService {
                     descriptionId=last?R.id.last_hour_image:R.id.hour_image;
                     row.setViewVisibility(R.id.hour_image,last?android.view.View.GONE:android.view.View.VISIBLE);
                     row.setViewVisibility(R.id.last_hour_image,last?android.view.View.VISIBLE:android.view.View.GONE);
+                    Intent click=WidgetEventAction.slice(day,slice,blocks);
+                    row.setOnClickFillInIntent(descriptionId,click==null?new Intent():click);
+                    row.setBoolean(descriptionId,"setEnabled",click!=null);
                     row.setImageViewBitmap(descriptionId,TimelineView.sliceBitmap(widthDp,
                             getResources().getDisplayMetrics().density,slice,day,blocks,updatedAt));
                 }
@@ -59,6 +64,7 @@ public class EventWidgetService extends RemoteViewsService {
             } else {
                 if (position < 0) return null;
                 var e = allDay.get(position);
+                v.setOnClickFillInIntent(R.id.card_root,WidgetEventAction.event(e));
                 EventCardViews.color(v,R.id.card_fill,R.id.card_outline,R.id.card_accent,e.color());
                 v.setTextViewText(R.id.time, e.time()); v.setTextViewText(R.id.title, e.title()); v.setTextViewText(R.id.location, e.location());
             }

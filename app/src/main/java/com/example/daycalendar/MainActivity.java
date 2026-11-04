@@ -8,7 +8,6 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.provider.CalendarContract;
 import android.widget.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -101,12 +100,7 @@ public class MainActivity extends Activity {
                         card.addView(text(event.time(), 13, 0xff245e4c));
                         TextView title = text(event.title(), 20, 0xff183b32); title.setTypeface(null, Typeface.BOLD); card.addView(title);
                         if (!event.location().trim().isEmpty()) card.addView(text(event.location(), 13, 0xff53655e));
-                        card.setOnClickListener(v -> {
-                            Intent intent = new Intent(Intent.ACTION_VIEW, ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, event.id()));
-                            intent.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, event.begin());
-                            intent.putExtra(CalendarContract.EXTRA_EVENT_END_TIME, event.end());
-                            try { startActivity(intent); } catch (ActivityNotFoundException e) { Toast.makeText(this, "カレンダーアプリがありません", Toast.LENGTH_SHORT).show(); }
-                        });
+                        card.setOnClickListener(v -> openEvent(event));
                     }
                     body.addView(new TimelineView(this, selected, events, this::openEvent));
                     button(body, "更新", () -> { render(); DayWidget.refreshAll(this); });
@@ -119,10 +113,7 @@ public class MainActivity extends Activity {
         });
     }
     private void openEvent(CalendarEvent event) {
-        Intent intent = new Intent(Intent.ACTION_VIEW, ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, event.id()));
-        intent.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, event.begin());
-        intent.putExtra(CalendarContract.EXTRA_EVENT_END_TIME, event.end());
-        try { startActivity(intent); } catch (ActivityNotFoundException e) { Toast.makeText(this, "カレンダーアプリがありません", Toast.LENGTH_SHORT).show(); }
+        if(!CalendarEventLauncher.open(this,event))Toast.makeText(this,"予定を開けるカレンダーアプリが見つかりません",Toast.LENGTH_LONG).show();
     }
     private void button(LinearLayout parent, String label, Runnable action) {
         Button b = new Button(this); b.setText(label); b.setAllCaps(false); b.setOnClickListener(v -> action.run()); parent.addView(b);

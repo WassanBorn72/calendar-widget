@@ -60,9 +60,9 @@ Chromium で予定6件、詳細ダイアログ、翌日移動、表示切り替�
 
 ## 正式版 APK
 
-[GitHub Releases](https://github.com/WassanBorn72/calendar-widget/releases) にて署名済み APK を配布します。最新版は **v1.0.6**、アプリ ID は `io.github.wassanborn72.calendarwidget` です。Google Play 向けではなく直接インストール用です。公開状況は Releases ページで確認してください。
+[GitHub Releases](https://github.com/WassanBorn72/calendar-widget/releases) にて署名済み APK を配布します。最新版は **v1.0.7**、アプリ ID は `io.github.wassanborn72.calendarwidget` です。Google Play 向けではなく直接インストール用です。公開状況は Releases ページで確認してください。
 
-署名鍵は公開しません。更新版のビルドと鍵の保管方法は [リリース手順](docs/RELEASING.md)、機能・インストール方法・制限は [リリースノート](docs/releases/v1.0.6.md) を参照してください。
+署名鍵は公開しません。更新版のビルドと鍵の保管方法は [リリース手順](docs/RELEASING.md)、機能・インストール方法・制限は [リリースノート](docs/releases/v1.0.7.md) を参照してください。
 
 
 v1.0.2 ではウィジェットを画面密度に応じた ARGB_8888 画像で描画します。短い区間ごとに描画し、各画像を512KiB以下に制限して転送エラーを避けます。予定の枠線は実際の時間範囲の内側に描き、所要時間の高さや0〜24時の縮尺を変えません。描画テストは `./gradlew :app:testDebugUnitTest` で実行でき、高密度・同色の連続予定の境界・画像分割の連続性・現在時刻線・画像サイズ上限を検証します。
@@ -80,3 +80,6 @@ v1.0.5 では `RemoteViews.reapply()` による行の再利用時に、動的な
 
 
 v1.0.6 は `EVENT_COLOR` → `DISPLAY_COLOR` → `CALENDAR_COLOR` の順に端末の色を反映します。元の色をアクセントにし、背景と枠は同系色の淡い色にします。アプリ・終日予定・ウィジェットで共通の配色を使い、文字とのコントラストもテストします。Google カレンダーから端末へ同期され、Calendar Provider が公開している色が対象です。
+
+
+v1.0.7 は予定のタップで Google カレンダーを優先して開きます。予定 ID と当該回の開始・終了時刻、終日フラグを渡します。Google カレンダーが起動できない場合は標準の VIEW Intent で代替アプリを使います。ウィジェットの PendingIntent は明示的な非公開 Activity に固定し、コレクションからの補完情報だけを受け取ります。Android 11以前の画像表示で同一区間に複数の予定がある場合は選択一覧を表示します。

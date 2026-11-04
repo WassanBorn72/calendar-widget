@@ -1,0 +1,29 @@
+{
+  "applicationId": "io.github.wassanborn72.calendarwidget",
+  "versionName": "1.0.7",
+  "versionCode": 8,
+  "minimumAndroidApi": 26,
+  "targetAndroidApi": 35,
+  "apkSha256": "1a1e7e2fedfae1bc1dd94e07464925d1365b6b08db9d9b68dedc71f133714dd0",
+  "certificateSha256": "65f378d488d10264fb31b3b702c0b5f4387182b5fe20328055ad1a59cf25e696",
+  "validation": {
+    "releaseBuild": "passed",
+    "releaseLint": "0 errors; 13 warnings",
+    "androidUnitTests": {
+      "passed": 50,
+      "failed": 0,
+      "skipped": 0,
+      "coverage": [
+        "real widget host click routing for overlapping event cards and all-day rows",
+        "event URI, instance begin/end and all-day extras",
+        "Google Calendar preference and generic fallback, missing handlers",
+        "mutable explicit private template on Android 26 and 35",
+        "legacy overlap picker selection",
+        "existing colors, reapply, full-day scrolling and minute updates"
+      ]
+    },
+    "timelineTests": "passed",
+    "browserTests": "not rerun: web sources unchanged",
+    "physicalDevice": "not tested; real Google Calendar app launch not verified"
+  }
+}
